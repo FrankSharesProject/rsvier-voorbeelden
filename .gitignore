@@ -10,3 +10,7 @@
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+**/target/*
+Workshop2/SpringBootJwt/log/log-20170301T152441.txt
+Workshop2/SpringBootJwt/log/log-20170301T141506.txt
+**/log
