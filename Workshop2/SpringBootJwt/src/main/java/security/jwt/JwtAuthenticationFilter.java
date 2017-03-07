@@ -10,6 +10,7 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
@@ -26,37 +27,30 @@ public class JwtAuthenticationFilter extends GenericFilterBean{
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain) throws IOException, ServletException {
         HttpServletRequest req = (HttpServletRequest)request;
         HttpServletResponse res = (HttpServletResponse) response;
-        //In dit geval moet er naar het token gekeken worden in de RESPONSE, en niet de request.
-        String token = res.getHeader("jwt-auth");
+        
+        Cookie[] cookies = req.getCookies();
+        String token = null;
+        for(Cookie c : cookies){
+            if(c.getName().equals("jwt-auth")){
+                token = c.getValue();
+            }
+        }
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if(token != null){
             log.debug("Jwt access token found");
-            String username = jwtUtil.getUsername(token);
-            Authentication authentication = new AuthenticatedUser(username);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            if(jwtUtil.verifyJwt(token)){
+                String username = jwtUtil.getUsername(token);
+                authentication = new AuthenticatedUser(username);
+            }
+            else{
+                authentication = new AuthenticatedUser(null);
+                authentication.setAuthenticated(false);
+            }
         }
         else{
             log.warn("Jwt access token not found!");
         }
+        SecurityContextHolder.getContext().setAuthentication(authentication);
         filterChain.doFilter(request,response);
     }
 }
-
-/* //Old
-Enumeration<String> headerNames = req.getHeaderNames();
-        while(headerNames.hasMoreElements()){
-            String header = headerNames.nextElement();
-            System.out.println("Header " + header + " found");
-        }
-        String header = req.getHeader("jwt-auth");
-        Authentication authentication = null;
-        if(header != null){
-            System.out.println("Auth header found");
-            System.out.println("Header: " + header);
-            String username = jwtUtil.getUsername(header);
-            if(username != null){
-                authentication = new AuthenticatedUser(username);
-                System.out.println("Authorized");
-            }
-        }
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-*/

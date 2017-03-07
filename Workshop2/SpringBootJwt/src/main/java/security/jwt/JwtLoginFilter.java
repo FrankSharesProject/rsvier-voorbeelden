@@ -8,6 +8,7 @@ package security.jwt;
 import java.io.IOException;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
@@ -45,7 +46,8 @@ public class JwtLoginFilter extends AbstractAuthenticationProcessingFilter{
         log.debug("Authentication successful");
         String name = authentication.getName();
         String jwt = jwtUtil.generateJwt(name);
-        response.addHeader("jwt-auth", jwt);
+        Cookie cookie = new Cookie("jwt-auth", jwt);
+        response.addCookie(cookie);
         chain.doFilter(request, response);
     }
     
