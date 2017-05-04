@@ -20,6 +20,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.Base64;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
@@ -97,6 +98,7 @@ public class JwtUtil {
             SecretKey key = KeyGenerator.getInstance("HmacSHA256").generateKey();
             byte[] encodedKey = Base64.getEncoder().encode(key.getEncoded());
             output.write(encodedKey);
+            System.out.println(new String(encodedKey));
             output.flush();
         }
         catch (FileNotFoundException | NoSuchAlgorithmException ex) {
